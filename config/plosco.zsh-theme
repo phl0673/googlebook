@@ -1,4 +1,3 @@
-
 # Flèche d'état adoucie (vert menthe / rouge brique doux)
 function toon {
   echo -n "%(?.%F{114}.%F{167})➜%f "
@@ -16,7 +15,7 @@ function python_virtualenv_info {
 # 222 = jaune sable / vanille pour la date
 # 110 = bleu pastel pour user@host
 # 151 = vert sauge / cyan feutré pour le path
-PROMPT='%F{242}[ %F{222}%D %t %F{242}] [ %F{110}%n@%m%F{242}:%F{151}%~ $(git_prompt_info)$(python_virtualenv_info)%F{242} ]%f
+PROMPT='%F{242}[ %F{222}%D %t %F{242}] [ %F{110}%n@googlebook%F{242}: %F{151}%~ $(git_prompt_info)$(python_virtualenv_info)%F{242} ]%f
 $(toon)$ '
 
 # Thème Git moins agressif

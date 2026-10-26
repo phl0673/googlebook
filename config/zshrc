@@ -111,7 +111,8 @@ code() {
     /usr/bin/code --no-sandbox --disable-gpu --ozone-platform=wayland "$@"
 }
 
+source ${HOME}/.venv/bin/activate
+
 alias ll="eza -la --git --time-style=relative"
 alias la="eza -a --git --time-style=relative"
-
 alias tree="eza --tree --level=2 --ignore-glob='.git|node_modules|__pycache__|.venv'"

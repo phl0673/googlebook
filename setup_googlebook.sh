@@ -25,6 +25,7 @@ echo " -> force le server au demarrage de la VM"
 systemctl --user enable --now code-server
 systemctl --user status code-server --no-pager || true
 echo " -> utilise http://localhost:8080 pour utiliser code-server"
+
 echo "code-server [OK]"
 
 
@@ -44,19 +45,20 @@ if ! grep -q "exec zsh -l" "$HOME/.bashrc"; then
     echo -e "\n# Bascule automatique vers ZSH\n$BASHRC_HOOK" >> "$HOME/.bashrc"
 fi
 
-
-
 echo "deploy config"
 CONFIG_DIR=${HOME}/dev/googlebook/config
 
 ## zshrc
-rm -f ~/.zshrc
+rm -f ${HOME}/.zshrc
 ln -sf ${CONFIG_DIR}/zshrc ${HOME}/.zshrc
 
 ## theme
-mkdir -p ~/.oh-my-zsh/custom/themes
+mkdir -p ${HOME}/.oh-my-zsh/custom/themes
 ln -sf ${CONFIG_DIR}/plosco.zsh-theme ${HOME}/.oh-my-zsh/custom/themes/plosco.zsh-theme
 
+## keyboards binding vscode
+rm -f ${HOME}/.local/share/code-server/User/keybindings.json
+ln -sf ${CONFIG_DIR}/keybindings.json ${HOME}/.local/share/code-server/User/keybindings.json
 
 echo
 echo "======================================================="

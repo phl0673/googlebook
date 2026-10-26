@@ -1,0 +1,17 @@
+[
+  {
+    "key": "backspace",
+    "command": "deleteLeft",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+.",
+    "command": "editor.action.commentLine",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "ctrl+/",
+    "command": "-editor.action.commentLine",
+    "when": "editorTextFocus && !editorReadonly"
+  }
+]
