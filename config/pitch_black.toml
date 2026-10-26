@@ -1,26 +1,26 @@
 [colors.primary]
-background = "#0a0909"
-foreground = "#ffffff"
+background = "#000000"
+# Remplace #ffffff par un blanc cassé / gris doux :
+foreground = "#d8dee9"
 
 [colors.normal]
 black   = "#000000"
 red     = "#ff5555"
-#green   = "#50fa7b"
 green   = "#8eb38a"
-yellow  = "#f1fa8c"
+yellow  = "#ebcb8b"
 blue    = "#8be9fd"
 magenta = "#ff79c6"
 cyan    = "#8be9fd"
-white   = "#f8f8f2"
+# white normal plus feutré (gris perle) :
+white   = "#d8dee9"
 
 [colors.bright]
 black   = "#44475a"
 red     = "#ff6e6e"
-#green   = "#69ff94"
 green   = "#a3be8c"
-yellow  = "#ffffa5"
+yellow  = "#f0d399"
 blue    = "#d6acff"
 magenta = "#ff92df"
 cyan    = "#a4ffff"
-white   = "#ffffffdc"
-
+# white bright doux (sans être un néon) :
+white   = "#e5e9f0"

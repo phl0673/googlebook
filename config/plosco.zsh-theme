@@ -1,29 +1,4 @@
 
-# function toon {
-#   echo -n "➜ "
-# }
-
-# function toon {
-#   echo -n "%(?.%{$fg[green]%}.%{$fg[red]%})➜%{$reset_color%} "
-# }
-
-# function python_virtualenv_info {
-#   if [ -n "$VIRTUAL_ENV" ]; then
-#     echo "%{$fg[yellow]%}($(basename "$VIRTUAL_ENV"))%{$reset_color%}"
-#   fi
-# }
-
-
-# PROMPT='$fg[white]%}$(toon) $fg_bold[blue][ $fg[yellow]%D %t $fg_bold[blue]] $fg_bold[blue] [ $fg[cyan]%n@%m:%~/ $(git_prompt_info)$fg[yellow] $fg_bold[blue]]$reset_color
-# $ '
-
-# # git theming
-# ZSH_THEME_GIT_PROMPT_PREFIX="$fg[green]("
-# ZSH_THEME_GIT_PROMPT_SUFFIX="$fg[green])"
-# ZSH_THEME_GIT_PROMPT_CLEAN="$fg[green]✔"
-# ZSH_THEME_GIT_PROMPT_DIRTY="$fg[red]✗"
-
-
 # Flèche d'état adoucie (vert menthe / rouge brique doux)
 function toon {
   echo -n "%(?.%F{114}.%F{167})➜%f "
