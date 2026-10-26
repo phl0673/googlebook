@@ -47,15 +47,15 @@ fi
 
 
 echo "deploy config"
-CONFIGDIR=${HOME}/dev/googlebook/config
+CONFIG_DIR=${HOME}/dev/googlebook/config
 
 ## zshrc
 rm -f ~/.zshrc
-ln -sf ${CONFIGDIR}/zshrc ${HOME}/.zshrc
+ln -sf ${CONFIG_DIR}/zshrc ${HOME}/.zshrc
 
 ## theme
 mkdir -p ~/.oh-my-zsh/custom/themes
-ln -sf ${CONFIGDIR}/plosco.zsh-theme ${HOME}/.oh-my-zsh/custom/themes/plosco.zsh-theme
+ln -sf ${CONFIG_DIR}/plosco.zsh-theme ${HOME}/.oh-my-zsh/custom/themes/plosco.zsh-theme
 
 
 echo
