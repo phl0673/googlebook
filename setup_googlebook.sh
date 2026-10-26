@@ -3,7 +3,7 @@ set -e
 
 echo "=== [1/6] Mise à jour du système et paquets de base ==="
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk
+sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk eza
 
 echo "=== [2/6] Optimisation du file-watcher pour le dev ==="
 cat << 'CONF' | sudo tee /etc/sysctl.d/60-vscode.conf
