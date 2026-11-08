@@ -60,6 +60,10 @@ ln -sf ${CONFIG_DIR}/plosco.zsh-theme ${HOME}/.oh-my-zsh/custom/themes/plosco.zs
 rm -f ${HOME}/.local/share/code-server/User/keybindings.json
 ln -sf ${CONFIG_DIR}/keybindings.json ${HOME}/.local/share/code-server/User/keybindings.json
 
+## Keyboard layout azerty / hack to cope with xwayland bug
+sudo cp /usr/share/X11/xkb/symbols/us /usr/share/X11/xkb/symbols/us.bk
+sudo cp /usr/share/X11/xkb/symbols/fr /usr/share/X11/xkb/symbols/us
+
 echo
 echo "======================================================="
 echo " Installation terminée avec succès !"

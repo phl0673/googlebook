@@ -116,3 +116,15 @@ source ${HOME}/.venv/bin/activate
 alias ll="eza -la --git --time-style=relative"
 alias la="eza -a --git --time-style=relative"
 alias tree="eza --tree --level=2 --ignore-glob='.git|node_modules|__pycache__|.venv'"
+alias nano="vi"
+
+# Added by Antigravity CLI installer
+export PATH="/home/droid/.local/bin:$PATH"
+
+
+export WAYLAND_DISPLAY=wayland-0
+export XKB_DEFAULT_LAYOUT=fr
+export XKB_DEFAULT_VARIANT=azerty
+
+(xkbcomp ~/.xkb_layout $DISPLAY 2>/dev/null &)
+
