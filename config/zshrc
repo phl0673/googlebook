@@ -117,7 +117,8 @@ alias ll="eza -la --git --time-style=relative"
 alias la="eza -a --git --time-style=relative"
 alias tree="eza --tree --level=2 --ignore-glob='.git|node_modules|__pycache__|.venv'"
 alias nano="vi"
-alias cat='batcat --style=plain --paging=never'
+alias cat='batcat --paging=never'
+#alias cat='batcat --style=plain --paging=never'
 
 # Added by Antigravity CLI installer
 export PATH="/home/droid/.local/bin:$PATH"
@@ -132,6 +133,8 @@ export XKB_DEFAULT_VARIANT=azerty
 # Lance un workspace tmux : vi en onglets en haut (75%) + terminal en bas (25%)
 ide() {
   local vim_cmd="vi"
+  command -v nvim >/dev/null && vim_cmd="nvim"
+
   if [ $# -gt 0 ]; then
     # -p ouvre chaque fichier passé en argument dans un onglet Vim distinct
     vim_cmd="vi -p ${(q)@}"
