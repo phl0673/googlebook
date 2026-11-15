@@ -56,6 +56,10 @@ ln -sf ${CONFIG_DIR}/zshrc ${HOME}/.zshrc
 mkdir -p ${HOME}/.oh-my-zsh/custom/themes
 ln -sf ${CONFIG_DIR}/plosco.zsh-theme ${HOME}/.oh-my-zsh/custom/themes/plosco.zsh-theme
 
+## vimrc
+rm -f ${HOME}/.vimrc
+ln -sf ${CONFIG_DIR}/vimrc ${HOME}/.vimrc
+
 ## keyboards binding vscode
 rm -f ${HOME}/.local/share/code-server/User/keybindings.json
 ln -sf ${CONFIG_DIR}/keybindings.json ${HOME}/.local/share/code-server/User/keybindings.json

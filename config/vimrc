@@ -1,0 +1,31 @@
+" --- 0. Base indispensable (quitte le mode compatibilité vi) ---
+set nocompatible
+filetype plugin indent on
+
+" --- 1. Colorisation syntaxique (Python, Shell, JSON...) ---
+syntax enable
+set background=dark
+set t_Co=256
+set number                  " Numéros de ligne
+
+" --- 2. Match des parenthèses, crochets et accolades ---
+set showmatch               " Surligne brièvement la parenthèse correspondante à la frappe
+set matchpairs+=<:>         " Étend la touche % aux chevrons < > en plus de (), [], {}
+runtime! macros/matchit.vim " Étend la touche % aux blocs (if/else/fi, def/return...)
+
+" --- 3. Auto-complétion native (sans plugin) ---
+set wildmenu                " Menu visuel de complétion dans la barre de commande (:e, :find...)
+set wildmode=longest:full,full
+set completeopt=menu,menuone,noselect
+
+" Complétion intelligente avec la touche Tab en mode Insertion
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : (col('.') > 1 && getline('.')[col('.')-2] =~ '\k' ? "\<C-n>" : "\<Tab>")
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+" --- 4. Indentation propre pour Python & Shell ---
+set expandtab               " Remplace les tabulations par des espaces (vital en Python)
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set autoindent
+set smartindent

@@ -117,10 +117,10 @@ alias ll="eza -la --git --time-style=relative"
 alias la="eza -a --git --time-style=relative"
 alias tree="eza --tree --level=2 --ignore-glob='.git|node_modules|__pycache__|.venv'"
 alias nano="vi"
+alias cat='batcat --style=plain --paging=never'
 
 # Added by Antigravity CLI installer
 export PATH="/home/droid/.local/bin:$PATH"
-
 
 export WAYLAND_DISPLAY=wayland-0
 export XKB_DEFAULT_LAYOUT=fr
