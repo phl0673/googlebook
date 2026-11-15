@@ -128,3 +128,28 @@ export XKB_DEFAULT_VARIANT=azerty
 
 (xkbcomp ~/.xkb_layout $DISPLAY 2>/dev/null &)
 
+
+# Lance un workspace tmux : vi en onglets en haut (75%) + terminal en bas (25%)
+ide() {
+  local vim_cmd="vi"
+  if [ $# -gt 0 ]; then
+    # -p ouvre chaque fichier passé en argument dans un onglet Vim distinct
+    vim_cmd="vi -p ${(q)@}"
+  fi
+
+  if [ -n "$TMUX" ]; then
+    # Déjà dans tmux : crée une nouvelle fenêtre propre
+    tmux new-window -c "$PWD"
+    tmux split-window -v -p 25 -c "$PWD"
+    tmux select-pane -U
+    tmux send-keys "$vim_cmd" C-m
+  else
+    # Hors tmux : démarre une nouvelle session attachée
+    local session="dev_$(basename "$PWD" | tr '.' '_')"
+    tmux new-session -d -s "$session" -c "$PWD"
+    tmux split-window -v -p 25 -t "$session" -c "$PWD"
+    tmux select-pane -U -t "$session"
+    tmux send-keys -t "$session" "$vim_cmd" C-m
+    tmux attach-session -t "$session"
+  fi
+}

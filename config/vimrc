@@ -29,3 +29,21 @@ set shiftwidth=4
 set softtabstop=4
 set autoindent
 set smartindent
+set splitbelow
+set splitright
+set mouse=""
+
+" --- 6. Ouverture dans de nouveaux onglets & navigation Ctrl+Flèches ---
+" Ouvre automatiquement chaque fichier passé en argument dans un onglet dédié
+autocmd VimEnter * if argc() > 1 | tab all | endif
+
+" Navigation entre onglets en mode Normal et Insertion avec Ctrl+Gauche / Ctrl+Droite
+nnoremap <tab> :tabnext<CR>
+nnoremap <S-Tab> :tabprevious<CR>
+
+" --- 7. Ouvrir :e et :Ex directement dans un nouvel onglet ---
+cnoreabbrev <expr> e (getcmdtype() == ':' && getcmdline() ==# 'e') ? 'tabe' : 'e'
+let g:netrw_browse_split = 3
+
+cnoreabbrev e tabe
+

@@ -3,7 +3,7 @@ set -e
 
 echo "=== [1/6] Mise à jour du système et paquets de base ==="
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk eza bat
+sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk eza bat tmux
 
 echo "=== [2/6] Optimisation du file-watcher pour le dev ==="
 cat << 'CONF' | sudo tee /etc/sysctl.d/60-vscode.conf
@@ -14,7 +14,7 @@ sudo sysctl -p /etc/sysctl.d/60-vscode.conf
 echo "=== [3/6] Installation de Visual Studio Code officiel ==="
 curl -fsSL https://code-server.dev/install.sh | sh
 
-echo" -> setup le no passwd mode"
+echo " -> setup le no passwd mode"
 mkdir -p ~/.config/code-server
 cat << 'EOF' > ~/.config/code-server/config.yaml
 bind-addr: 0.0.0.0:8080
