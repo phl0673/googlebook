@@ -107,8 +107,8 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 code() {
-    killall -9 code 2>/dev/null
-    /usr/bin/code --no-sandbox --disable-gpu --ozone-platform=wayland "$@"
+  killall -9 code 2>/dev/null
+  /usr/bin/code --no-sandbox --disable-gpu --ozone-platform=wayland "$@"
 }
 
 source ${HOME}/.venv/bin/activate
@@ -128,7 +128,6 @@ export XKB_DEFAULT_LAYOUT=fr
 export XKB_DEFAULT_VARIANT=azerty
 
 (xkbcomp ~/.xkb_layout $DISPLAY 2>/dev/null &)
-
 
 # Lance un workspace tmux : vi en onglets en haut (75%) + terminal en bas (25%)
 ide() {
@@ -164,3 +163,7 @@ if command -v nvim >/dev/null 2>&1; then
   export VISUAL="nvim"
 fi
 
+tmux() {
+  printf '\033[2J\033[3J\033[H'
+  command tmux -u "$@"
+}
