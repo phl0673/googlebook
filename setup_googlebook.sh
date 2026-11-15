@@ -96,6 +96,7 @@ ln -sf ${CONFIG_DIR}/lazy.lua ~/.config/nvim/lua/config/lazy.lua
 ln -sf ${CONFIG_DIR}/shell.lua ~/.config/nvim/lua/plugins/shell.lua
 ln -sf ${CONFIG_DIR}/theme.lua ~/.config/nvim/lua/plugins/theme.lua
 ln -sf ${CONFIG_DIR}/options.lua ~/.config/nvim/lua/config/options.lua
+ln -sf ${CONFIG_DIR}/keymaps.lua ~/.config/nvim/lua/config/keymaps.lua
 
 ## load
 nvim --headless "+Lazy! sync" +qa
