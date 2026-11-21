@@ -55,7 +55,7 @@ log "Mise à jour du système et installation des paquets de base"
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk eza bat tmux \
-  build-essential ripgrep fd-find unzip nodejs npm
+  build-essential ripgrep fd-find unzip nodejs lz4 python3 python3-venv
 
 # ==========================================================
 # Oh My Zsh
@@ -119,6 +119,7 @@ fi
 # ==========================================================
 
 log "Installation de LazyVim"
+mkdir -p "$HOME/.config"
 if [[ ! -d "$HOME/.config/nvim" ]]; then
   git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
   rm -rf "$HOME/.config/nvim/.git"
@@ -160,7 +161,60 @@ fi
 
 log "Synchronisation de LazyVim et installation des outils Mason"
 nvim --headless "+Lazy! sync" +qa
-nvim --headless "+MasonInstall bash-language-server shellcheck shfmt" +qa
+nvim --headless "+Lazy! load mason.nvim" \
+  "+MasonInstall bash-language-server shellcheck shfmt" +qa
+
+# ==========================================================
+# Synology Decrypt
+# ==========================================================
+
+log "Installation de Synology Decrypt"
+SYNOLOGY_DECRYPT_DIR="$HOME/dev/synology-decrypt"
+SYNOLOGY_DECRYPT_REPO="https://github.com/phl0673/synology-decrypt.git"
+SYNOLOGY_DECRYPT_BRANCH="fix-absolute-input-path"
+VENV_DIR="$HOME/.venv"
+PASSWORD_DIR="$HOME/.config/synology-decrypt"
+PASSWORD_FILE="$PASSWORD_DIR/password.txt"
+
+mkdir -p "$HOME/dev" "$PASSWORD_DIR"
+chmod 700 "$PASSWORD_DIR"
+
+if [[ ! -d "$SYNOLOGY_DECRYPT_DIR" ]]; then
+  git clone --branch "$SYNOLOGY_DECRYPT_BRANCH" "$SYNOLOGY_DECRYPT_REPO" "$SYNOLOGY_DECRYPT_DIR"
+else
+  if [[ ! -d "$SYNOLOGY_DECRYPT_DIR/.git" ]]; then
+    die "Le dossier existe mais n'est pas un dépôt Git : $SYNOLOGY_DECRYPT_DIR"
+  fi
+
+  CURRENT_BRANCH="$(git -C "$SYNOLOGY_DECRYPT_DIR" branch --show-current)"
+  if [[ "$CURRENT_BRANCH" != "$SYNOLOGY_DECRYPT_BRANCH" ]]; then
+    die "Branche incorrecte dans Synology Decrypt : $CURRENT_BRANCH (attendu : $SYNOLOGY_DECRYPT_BRANCH)"
+  fi
+
+  echo "[OK] Dépôt Synology Decrypt déjà présent sur la branche $CURRENT_BRANCH"
+fi
+
+if [[ ! -x "$VENV_DIR/bin/python" ]]; then
+  python3 -m venv "$VENV_DIR"
+fi
+
+"$VENV_DIR/bin/python" -m pip install pycryptodomex docopt
+PYTHONPATH="$SYNOLOGY_DECRYPT_DIR" \
+  "$VENV_DIR/bin/python" -m syndecrypt --help
+
+if [[ ! -e "$PASSWORD_FILE" ]]; then
+  install -m 600 /dev/null "$PASSWORD_FILE"
+else
+  chmod 600 "$PASSWORD_FILE"
+fi
+
+echo
+echo "Mot de passe Synology : fichier privé à compléter :"
+echo "  $PASSWORD_FILE"
+echo "Édite-le avec : vi \"$PASSWORD_FILE\""
+echo "Permissions : 600 (lecture/écriture réservées à ton utilisateur)"
+echo "Commande de décodage :"
+echo "  $VENV_DIR/bin/python -m syndecrypt -p \"$PASSWORD_FILE\" -O <dossier_sortie> <fichier_chiffré>..."
 
 log "Installation terminée avec succès !"
 exit 0
