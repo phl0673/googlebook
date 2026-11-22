@@ -167,3 +167,9 @@ tmux() {
   printf '\033[2J\033[3J\033[H'
   command tmux -u "$@"
 }
+
+if [[ -s "$HOME/.config/1password/service-account-token" ]]; then
+  export OP_SERVICE_ACCOUNT_TOKEN="$(< "$HOME/.config/1password/service-account-token")"
+fi
+
+

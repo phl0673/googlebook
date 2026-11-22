@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+set -o pipefail
 
 # ==========================================================
 # Fonctions communes
@@ -55,7 +56,7 @@ log "Mise à jour du système et installation des paquets de base"
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y git curl wget gnupg zsh zenity xdg-desktop-portal-gtk eza bat tmux \
-  build-essential ripgrep fd-find unzip nodejs lz4 python3 python3-venv
+  build-essential ripgrep fd-find unzip nodejs lz4 python3 python3-venv openssl shellcheck
 
 # ==========================================================
 # Oh My Zsh
@@ -69,6 +70,7 @@ else
 fi
 
 log "Configuration du switch automatique vers Zsh dans ~/.bashrc"
+# shellcheck disable=SC2016
 BASHRC_HOOK='if [ -t 1 ] && [ -x "$(command -v zsh)" ] && [ "$SHELL" != "$(command -v zsh)" ]; then
     export SHELL="$(command -v zsh)"
     exec zsh -l
@@ -165,6 +167,64 @@ nvim --headless "+Lazy! load mason.nvim" \
   "+MasonInstall bash-language-server shellcheck shfmt" +qa
 
 # ==========================================================
+# 1Password CLI
+# ==========================================================
+
+log "Installation de 1Password CLI"
+
+if ! command -v op >/dev/null 2>&1; then
+  OP_ARCH="$(dpkg --print-architecture)"
+
+  case "$OP_ARCH" in
+    amd64|arm64) ;;
+    *) die "Architecture non prise en charge par 1Password CLI : $OP_ARCH" ;;
+  esac
+
+  sudo install -d -m 755 /usr/share/keyrings
+
+  curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+    sudo gpg --dearmor --yes \
+      --output /usr/share/keyrings/1password-archive-keyring.gpg
+
+  echo "deb [arch=$OP_ARCH signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$OP_ARCH stable main" |
+    sudo tee /etc/apt/sources.list.d/1password.list >/dev/null
+
+  sudo install -d /etc/debsig/policies/AC2D62742012EA22
+  curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol |
+    sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol >/dev/null
+
+  sudo install -d /usr/share/debsig/keyrings/AC2D62742012EA22
+  curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+    sudo gpg --dearmor --yes \
+      --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+
+  sudo apt update
+  sudo apt install -y 1password-cli
+else
+  echo "[OK] 1Password CLI déjà installé : $(op --version)"
+fi
+
+# ==========================================================
+# 1Password CLI - Service Account
+# ==========================================================
+
+log "Préparation de 1Password CLI"
+
+OP_CONFIG_DIR="$HOME/.config/1password"
+OP_TOKEN_FILE="$OP_CONFIG_DIR/service-account-token"
+
+mkdir -p "$OP_CONFIG_DIR"
+chmod 700 "$OP_CONFIG_DIR"
+
+if [[ ! -e "$OP_TOKEN_FILE" ]]; then
+  install -m 600 /dev/null "$OP_TOKEN_FILE"
+  echo "[CREATED] $OP_TOKEN_FILE"
+else
+  chmod 600 "$OP_TOKEN_FILE"
+  echo "[OK] Token 1Password déjà présent"
+fi
+
+# ==========================================================
 # Synology Decrypt
 # ==========================================================
 
@@ -174,7 +234,7 @@ SYNOLOGY_DECRYPT_REPO="https://github.com/phl0673/synology-decrypt.git"
 SYNOLOGY_DECRYPT_BRANCH="fix-absolute-input-path"
 VENV_DIR="$HOME/.venv"
 PASSWORD_DIR="$HOME/.config/synology-decrypt"
-PASSWORD_FILE="$PASSWORD_DIR/password.txt"
+PRIVATE_KEY_FILE="$PASSWORD_DIR/private.pem"
 
 mkdir -p "$HOME/dev" "$PASSWORD_DIR"
 chmod 700 "$PASSWORD_DIR"
@@ -202,19 +262,72 @@ fi
 PYTHONPATH="$SYNOLOGY_DECRYPT_DIR" \
   "$VENV_DIR/bin/python" -m syndecrypt --help
 
-if [[ ! -e "$PASSWORD_FILE" ]]; then
-  install -m 600 /dev/null "$PASSWORD_FILE"
+# Récupération de la clé privée depuis 1Password
+if [[ -s "$PRIVATE_KEY_FILE" ]]; then
+  chmod 600 "$PRIVATE_KEY_FILE"
+  openssl pkey -in "$PRIVATE_KEY_FILE" -noout -check >/dev/null \
+    || die "La clé privée existante est invalide"
+  echo "[OK] Clé privée déjà présente et valide"
 else
-  chmod 600 "$PASSWORD_FILE"
+  OP_TOKEN_FILE="$HOME/.config/1password/service-account-token"
+
+  SKIP_PRIVATE_KEY_SETUP=0
+
+  if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]]; then
+    if [[ -s "$OP_TOKEN_FILE" ]]; then
+      OP_SERVICE_ACCOUNT_TOKEN="$(< "$OP_TOKEN_FILE")"
+      export OP_SERVICE_ACCOUNT_TOKEN
+    else
+      echo
+      echo "[INFO] Configuration 1Password nécessaire."
+      echo "Renseigne ton Service Account token dans :"
+      echo "  $OP_TOKEN_FILE"
+      echo
+      echo "Puis relance ce script pour récupérer la clé privée."
+      SKIP_PRIVATE_KEY_SETUP=1
+    fi
+  fi
+
+  if [[ "$SKIP_PRIVATE_KEY_SETUP" -eq 0 ]]; then
+    umask 077
+    TMP_KEY="$(mktemp "$PASSWORD_DIR/.private.pem.XXXXXX")"
+
+    # shellcheck disable=SC2317
+    cleanup_private_key() {
+      if [[ -n "${TMP_KEY:-}" && -e "$TMP_KEY" ]]; then
+        rm -f -- "$TMP_KEY"
+      fi
+    }
+    trap cleanup_private_key EXIT
+
+    op read \
+      "op://cli-access-only/syno-google-encryption/private_key" \
+      > "$TMP_KEY" || die "Impossible de récupérer la clé privée depuis 1Password"
+
+    [[ -s "$TMP_KEY" ]] || die "La clé privée récupérée est vide"
+
+    openssl pkey -in "$TMP_KEY" -noout -check >/dev/null \
+      || die "La clé privée récupérée est invalide"
+
+    chmod 600 "$TMP_KEY"
+    mv -- "$TMP_KEY" "$PRIVATE_KEY_FILE"
+    TMP_KEY=""
+
+    trap - EXIT
+
+    echo "[CREATED] Clé privée récupérée et validée depuis 1Password"
+  fi
 fi
 
-echo
-echo "Mot de passe Synology : fichier privé à compléter :"
-echo "  $PASSWORD_FILE"
-echo "Édite-le avec : vi \"$PASSWORD_FILE\""
-echo "Permissions : 600 (lecture/écriture réservées à ton utilisateur)"
-echo "Commande de décodage :"
-echo "  $VENV_DIR/bin/python -m syndecrypt -p \"$PASSWORD_FILE\" -O <dossier_sortie> <fichier_chiffré>..."
+if [[ -s "$PRIVATE_KEY_FILE" ]]; then
+  echo
+  echo "Clé privée Synology :"
+  echo "  $PRIVATE_KEY_FILE"
+  echo "Permissions : 600"
+  echo "Commande de déchiffrement :"
+  echo "  $VENV_DIR/bin/python -m syndecrypt -k \"$PRIVATE_KEY_FILE\" -O <dossier_sortie> <fichier_chiffré>..."
+fi
 
 log "Installation terminée avec succès !"
+
 exit 0
