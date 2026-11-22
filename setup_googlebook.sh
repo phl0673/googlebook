@@ -256,6 +256,8 @@ fi
 
 if [[ ! -x "$VENV_DIR/bin/python" ]]; then
   python3 -m venv "$VENV_DIR"
+else
+  "$VENV_DIR/bin/python" -m pip install --upgrade pip
 fi
 
 "$VENV_DIR/bin/python" -m pip install pycryptodomex docopt
