@@ -118,6 +118,7 @@ alias la="eza -a --git --time-style=relative"
 alias tree="eza --tree --level=2 --ignore-glob='.git|node_modules|__pycache__|.venv'"
 alias nano="vi"
 alias cat='batcat --paging=never'
+alias rm='rm -i'
 #alias cat='batcat --style=plain --paging=never'
 
 # Added by Antigravity CLI installer
@@ -171,5 +172,4 @@ tmux() {
 if [[ -s "$HOME/.config/1password/service-account-token" ]]; then
   export OP_SERVICE_ACCOUNT_TOKEN="$(< "$HOME/.config/1password/service-account-token")"
 fi
-
 
